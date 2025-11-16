@@ -7,7 +7,7 @@
           "__rl": true,
           "value": "151jMcM6TroZDlQvLMIMeKbir6Z9ucO6BYeH2GZvmzdw",
           "mode": "list",
-          "cachedResultName": "Calling Oze customers",
+          "cachedResultName": "Calling customers",
           "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
         },
         "sheetName": {
@@ -40,7 +40,7 @@
           "__rl": true,
           "value": "151jMcM6TroZDlQvLMIMeKbir6Z9ucO6BYeH2GZvmzdw",
           "mode": "list",
-          "cachedResultName": "Calling Oze customers",
+          "cachedResultName": "Calling customers",
           "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
         },
         "sheetName": {
@@ -100,7 +100,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n    \"assistantId\": \"YOUR_ASSISTANT_ID\",\n    \"name\": \"Oze call\",\n    \"phoneNumberId\": \"YOUR_PHONENUMBER_ID\",\n    \"customer\": {\n        \"number\": \"{{ $json['Phone Number'] }}\"\n    },\n    \"assistantOverrides\": {\n        \"variableValues\": {\n            \"first_name\": \"={{ $json['First Name'] }}\",\n             \"business_name\": \"={{ $json['Business Name'] }}\",\n            \"questions\": \"={{ $json.QuestionsString }}\",\n            \"business_id\": \"={{ $json['Business ID'] }}\"\n        }\n    }\n}",
+        "jsonBody": "={\n    \"assistantId\": \"YOUR_ASSISTANT_ID\",\n    \"name\": \"NAME_OF_YOUR_VAPI_AGENT\",\n    \"phoneNumberId\": \"YOUR_PHONENUMBER_ID\",\n    \"customer\": {\n        \"number\": \"{{ $json['Phone Number'] }}\"\n    },\n    \"assistantOverrides\": {\n        \"variableValues\": {\n            \"first_name\": \"={{ $json['First Name'] }}\",\n             \"business_name\": \"={{ $json['Business Name'] }}\",\n            \"questions\": \"={{ $json.QuestionsString }}\",\n            \"business_id\": \"={{ $json['Business ID'] }}\"\n        }\n    }\n}",
         "options": {
           "lowercaseHeaders": false,
           "response": {
@@ -124,7 +124,7 @@
           "__rl": true,
           "value": "151jMcM6TroZDlQvLMIMeKbir6Z9ucO6BYeH2GZvmzdw",
           "mode": "list",
-          "cachedResultName": "Calling Oze customers",
+          "cachedResultName": "Calling customers",
           "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
         },
         "sheetName": {
