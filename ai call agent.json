@@ -1,0 +1,490 @@
+{
+  "name": "Ai call agent",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "151jMcM6TroZDlQvLMIMeKbir6Z9ucO6BYeH2GZvmzdw",
+          "mode": "list",
+          "cachedResultName": "Calling Oze customers",
+          "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 866380139,
+          "mode": "list",
+          "cachedResultName": "Questions",
+          "cachedResultUrl": "URL_of_spreadsheet_with_questions"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        880,
+        304
+      ],
+      "id": "d1a7c56e-a9cb-4592-ad2e-c028f9a5220b",
+      "name": "Get questions",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VS3Prkrc8HxlG4NJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "151jMcM6TroZDlQvLMIMeKbir6Z9ucO6BYeH2GZvmzdw",
+          "mode": "list",
+          "cachedResultName": "Calling Oze customers",
+          "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Customer data",
+          "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        272,
+        -128
+      ],
+      "id": "25a96667-1f44-44c6-8dfe-81b964f91341",
+      "name": "Get business data",
+      "executeOnce": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VS3Prkrc8HxlG4NJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect all \"Questions\" from all incoming items\nconst questions = items.map(item => item.json.Questions);\n\n// Join them into one string\nreturn [\n  {\n    json: {\n      QuestionsString: questions.join(\", \")\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        304
+      ],
+      "id": "7493d405-3eed-465d-b2f1-610f2c5634a1",
+      "name": "Convert question arrays to string"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.vapi.ai/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer YOUR_VAPi_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"assistantId\": \"YOUR_ASSISTANT_ID\",\n    \"name\": \"Oze call\",\n    \"phoneNumberId\": \"YOUR_PHONENUMBER_ID\",\n    \"customer\": {\n        \"number\": \"{{ $json['Phone Number'] }}\"\n    },\n    \"assistantOverrides\": {\n        \"variableValues\": {\n            \"first_name\": \"={{ $json['First Name'] }}\",\n             \"business_name\": \"={{ $json['Business Name'] }}\",\n            \"questions\": \"={{ $json.QuestionsString }}\",\n            \"business_id\": \"={{ $json['Business ID'] }}\"\n        }\n    }\n}",
+        "options": {
+          "lowercaseHeaders": false,
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1808,
+        -80
+      ],
+      "id": "7afad30f-108e-47b3-af28-f7d101f83643",
+      "name": "Make a call"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "151jMcM6TroZDlQvLMIMeKbir6Z9ucO6BYeH2GZvmzdw",
+          "mode": "list",
+          "cachedResultName": "Calling Oze customers",
+          "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Customer data",
+          "cachedResultUrl": "URL_of_Spreadsheet_with_customer_data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "business_id": "={{ $('Merge').item.json['Business ID'] }}",
+            "Status": "Calling"
+          },
+          "matchingColumns": [
+            "business_id"
+          ],
+          "schema": [
+            {
+              "id": "business_id",
+              "displayName": "business_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "no_of_products with_description",
+              "displayName": "no_of_products with_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "business_name",
+              "displayName": "business_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Phone number",
+              "displayName": "Phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2048,
+        -80
+      ],
+      "id": "875e918c-c189-46b6-a241-cae4e332ccd5",
+      "name": "Update business data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VS3Prkrc8HxlG4NJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -96,
+        -128
+      ],
+      "id": "a7fd8285-15eb-4eb3-a0a6-85317e1aba77",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        800,
+        -128
+      ],
+      "id": "cb54ec41-d476-4735-acd6-bcdbdc18a257",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bb6c7b47-c9f0-4fe3-9392-d045c28c1d19",
+              "name": "First Name",
+              "value": "={{ $json['First Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e81910a5-479f-4c0c-a7d7-06c4a020c72d",
+              "name": "Phone Number",
+              "value": "={{ $json['Phone number'] }}",
+              "type": "string"
+            },
+            {
+              "id": "6d16a881-fdb9-4d3c-a19b-d5667adc38dc",
+              "name": "Business Name",
+              "value": "={{ $json.business_name }}",
+              "type": "string"
+            },
+            {
+              "id": "402d9399-501d-441f-9b03-564612fd99f0",
+              "name": "Business ID",
+              "value": "={{ $json.business_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        -96
+      ],
+      "id": "3dd188f3-a495-4989-af59-2a9d59b7b8ff",
+      "name": "Set business data fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1520,
+        -80
+      ],
+      "id": "9fde8a30-4308-421b-a541-0ec9a1d65642",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2288,
+        -80
+      ],
+      "id": "be9dac37-4ba0-4bfc-8d72-1e0bb2a3f45a",
+      "name": "Wait",
+      "webhookId": "eea2af00-1884-49e8-9071-94af77642fcb"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get questions": {
+      "main": [
+        [
+          {
+            "node": "Convert question arrays to string",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get business data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert question arrays to string": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Make a call": {
+      "main": [
+        [
+          {
+            "node": "Update business data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update business data": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get business data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set business data fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set business data fields": {
+      "main": [
+        [
+          {
+            "node": "Get questions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Make a call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "29973e90-96d9-4063-b2b3-fa0c05c5d264",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "85bc83924d0eabe2e6aeb0d4db8aaaf049e0e0f6d41ad9f9b5a6ecc0bc9e9191"
+  },
+  "id": "QEuQ2Q1u4b37qVBY",
+  "tags": []
+}
